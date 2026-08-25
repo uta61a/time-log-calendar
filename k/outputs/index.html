@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>時間記録カレンダー</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="title-panel">
+      <h1>TIME LOG CALENDAR</h1>
+    </section>
+
+    <section class="hero">
+      <div class="clock-card" aria-label="この端末の現在日時">
+        <div class="clock-main">
+          <span id="currentHourMinute" class="clock-main-time">--:--</span>
+          <span id="currentSeconds" class="clock-seconds">--</span>
+        </div>
+        <div class="clock-side">
+          <p id="currentMeta" class="clock-meta">---- --/-- -</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel">
+      <section id="recordTab" class="tab-content" role="tabpanel">
+        <section class="panel input-panel">
+          <div class="panel-heading">
+            <h2 id="recordHeading">かんたん記録</h2>
+          </div>
+          <div class="manual-time-panel">
+            <label id="dateTimeLabel" class="input-label" for="manualDateTimeInput">日時</label>
+            <div class="datetime-row">
+              <input id="manualDateTimeInput" class="datetime-input" type="datetime-local">
+              <button id="useCurrentTimeButton" class="ghost-button" type="button">現在の時刻を取得</button>
+            </div>
+          </div>
+          <label id="activityLabel" class="input-label" for="activityInput">今していること</label>
+          <input
+            id="activityInput"
+            class="activity-input"
+            maxlength="280"
+            type="text"
+          >
+          <button id="saveButton" class="primary-button centered-action" type="button">記録する</button>
+        </section>
+      </section>
+
+      <section id="reviewTab" class="tab-content" role="tabpanel" hidden>
+        <section class="panel calendar-panel">
+          <div class="calendar-header">
+            <h2 id="calendarMonthLabel" class="calendar-inline-title">2026年8月</h2>
+            <div class="calendar-month-nav">
+              <button id="prevMonthButton" class="ghost-button month-nav-button" type="button" aria-label="前の月">‹</button>
+              <button id="nextMonthButton" class="ghost-button month-nav-button" type="button" aria-label="次の月">›</button>
+            </div>
+          </div>
+          <div id="calendarGrid" class="calendar-months"></div>
+          <button id="toggleCalendarButton" class="calendar-toggle-button" type="button" aria-expanded="false">カレンダーを開く</button>
+        </section>
+
+        <section class="panel detail-panel">
+          <div class="panel-heading">
+            <h2 id="selectedDateLabel">08/24の記録</h2>
+          </div>
+          <div id="selectedEntries" class="entries-list">
+            <p class="empty-state">まだ表示する記録がありません。</p>
+          </div>
+        </section>
+      </section>
+
+      <section id="textTab" class="tab-content" role="tabpanel" hidden>
+        <section class="panel calendar-panel">
+          <div class="calendar-header">
+            <h2 id="textCalendarMonthLabel" class="calendar-inline-title">2026年8月</h2>
+            <div class="calendar-month-nav">
+              <button id="textPrevMonthButton" class="ghost-button month-nav-button" type="button" aria-label="前の期間">‹</button>
+              <button id="textNextMonthButton" class="ghost-button month-nav-button" type="button" aria-label="次の期間">›</button>
+            </div>
+          </div>
+          <div id="textCalendarGrid" class="calendar-months"></div>
+          <button id="textToggleCalendarButton" class="calendar-toggle-button" type="button" aria-expanded="false">カレンダーを開く</button>
+        </section>
+
+        <section class="panel export-panel">
+          <div class="panel-heading">
+            <h2 id="textExportLabel">08/24をテキスト化</h2>
+          </div>
+          <textarea
+            id="textExportOutput"
+            class="export-output"
+            readonly
+            aria-label="テキスト化された記録"
+          ></textarea>
+          <button id="copyTextButton" class="primary-button centered-action" type="button">コピーする</button>
+        </section>
+      </section>
+
+      <section id="settingsTab" class="tab-content" role="tabpanel" hidden>
+        <section class="panel settings-panel">
+          <div class="panel-heading">
+            <h2 id="settingsHeading">設定</h2>
+          </div>
+          <div class="settings-group">
+            <p id="languageLabel" class="input-label">言語</p>
+            <div class="language-switch" role="group" aria-labelledby="languageLabel">
+              <button id="languageJaButton" class="ghost-button language-button" type="button">日本語</button>
+              <button id="languageEnButton" class="ghost-button language-button" type="button">English</button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <nav class="bottom-nav" role="tablist" aria-label="記録タブ">
+      <button id="recordTabButton" class="tab-button is-active" type="button" role="tab" aria-selected="true">記録</button>
+      <button id="reviewTabButton" class="tab-button" type="button" role="tab" aria-selected="false">履歴</button>
+      <button id="textTabButton" class="tab-button" type="button" role="tab" aria-selected="false">テキスト化</button>
+      <button id="settingsTabButton" class="tab-button" type="button" role="tab" aria-selected="false">設定</button>
+    </nav>
+  </main>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
