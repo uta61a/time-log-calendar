@@ -9,10 +9,17 @@
 <body>
   <main class="app-shell">
     <section class="title-panel">
-      <h1>TIME LOG CALENDAR</h1>
+      <div class="title-bar">
+        <h1>TIME LOG CALENDAR</h1>
+        <button id="settingsIconButton" class="icon-button" type="button" aria-label="設定">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.22-1.13.53-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.65 8.84a.5.5 0 0 0 .12.64L4.8 11.06c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.41 1.05.72 1.63.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.58-.22 1.13-.53 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
+          </svg>
+        </button>
+      </div>
     </section>
 
-    <section class="hero">
+    <section id="heroSection" class="hero">
       <div class="clock-card" aria-label="この端末の現在日時">
         <div class="clock-main">
           <span id="currentHourMinute" class="clock-main-time">--:--</span>
@@ -118,7 +125,6 @@
       <button id="recordTabButton" class="tab-button is-active" type="button" role="tab" aria-selected="true">記録</button>
       <button id="reviewTabButton" class="tab-button" type="button" role="tab" aria-selected="false">履歴</button>
       <button id="textTabButton" class="tab-button" type="button" role="tab" aria-selected="false">テキスト化</button>
-      <button id="settingsTabButton" class="tab-button" type="button" role="tab" aria-selected="false">設定</button>
     </nav>
   </main>
 

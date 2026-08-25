@@ -27,7 +27,8 @@ const toastContainerEl = document.getElementById("toastContainer");
 const recordTabButtonEl = document.getElementById("recordTabButton");
 const reviewTabButtonEl = document.getElementById("reviewTabButton");
 const textTabButtonEl = document.getElementById("textTabButton");
-const settingsTabButtonEl = document.getElementById("settingsTabButton");
+const settingsIconButtonEl = document.getElementById("settingsIconButton");
+const heroSectionEl = document.getElementById("heroSection");
 const recordTabEl = document.getElementById("recordTab");
 const reviewTabEl = document.getElementById("reviewTab");
 const textTabEl = document.getElementById("textTab");
@@ -85,6 +86,7 @@ const TRANSLATIONS = {
     deleteEntry: "記録を削除",
     copy: "コピーする",
     settingsHeading: "設定",
+    settingsButton: "設定",
     languageLabel: "言語",
     languageChanged: "言語を変更しました。",
     noDisplayEntries: "まだ表示する記録がありません。",
@@ -129,6 +131,7 @@ const TRANSLATIONS = {
     deleteEntry: "Delete entry",
     copy: "Copy",
     settingsHeading: "Settings",
+    settingsButton: "Settings",
     languageLabel: "Language",
     languageChanged: "Language updated.",
     noDisplayEntries: "No entries to show yet.",
@@ -387,10 +390,10 @@ function renderStaticText() {
   recordTabButtonEl.textContent = t("recordTab");
   reviewTabButtonEl.textContent = t("reviewTab");
   textTabButtonEl.textContent = t("textTab");
-  settingsTabButtonEl.textContent = t("settingsTab");
   settingsHeadingEl.textContent = t("settingsHeading");
   languageLabelEl.textContent = t("languageLabel");
   copyTextButtonEl.textContent = t("copy");
+  settingsIconButtonEl.setAttribute("aria-label", t("settingsButton"));
   prevMonthButtonEl.setAttribute("aria-label", t("prevMonthAria"));
   nextMonthButtonEl.setAttribute("aria-label", t("nextMonthAria"));
   textPrevMonthButtonEl.setAttribute("aria-label", t("prevPeriodAria"));
@@ -764,15 +767,14 @@ function setActiveTab(tabName) {
   recordTabButtonEl.classList.toggle("is-active", showRecord);
   reviewTabButtonEl.classList.toggle("is-active", showReview);
   textTabButtonEl.classList.toggle("is-active", showText);
-  settingsTabButtonEl.classList.toggle("is-active", showSettings);
   recordTabButtonEl.setAttribute("aria-selected", String(showRecord));
   reviewTabButtonEl.setAttribute("aria-selected", String(showReview));
   textTabButtonEl.setAttribute("aria-selected", String(showText));
-  settingsTabButtonEl.setAttribute("aria-selected", String(showSettings));
   recordTabEl.hidden = !showRecord;
   reviewTabEl.hidden = !showReview;
   textTabEl.hidden = !showText;
   settingsTabEl.hidden = !showSettings;
+  heroSectionEl.hidden = showSettings;
 }
 
 function toggleCalendarExpanded() {
@@ -984,7 +986,7 @@ useCurrentTimeButtonEl.addEventListener("click", useCurrentLocalTime);
 recordTabButtonEl.addEventListener("click", () => setActiveTab("record"));
 reviewTabButtonEl.addEventListener("click", () => setActiveTab("review"));
 textTabButtonEl.addEventListener("click", () => setActiveTab("text"));
-settingsTabButtonEl.addEventListener("click", () => setActiveTab("settings"));
+settingsIconButtonEl.addEventListener("click", () => setActiveTab("settings"));
 toggleCalendarButtonEl.addEventListener("click", toggleCalendarExpanded);
 textToggleCalendarButtonEl.addEventListener("click", toggleCalendarExpanded);
 prevMonthButtonEl.addEventListener("click", () => moveVisiblePeriod(-1));
