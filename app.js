@@ -45,6 +45,7 @@ const tabPanelEl = document.querySelector(".tab-panel");
 let selectedDateKey = null;
 let activeTab = "record";
 let currentClockDate = null;
+let secondsSinceClockSync = 0;
 let isCalendarExpanded = false;
 let visibleMonthKey = "";
 let currentLanguage = loadLanguage();
@@ -441,27 +442,36 @@ function renderCurrentDateTime(date) {
   currentMetaEl.textContent = `${clock.year} ${clock.monthDay} ${getLocationLabel()}`;
 }
 
-function syncCurrentDateTime() {
+function refreshCurrentDateDependentViews() {
+  renderCalendar();
+  if (!selectedDateKey) {
+    selectedDateKey = getTodayKey();
+  }
+  renderSelectedEntries();
+  renderTextExport();
+}
+
+function syncCurrentDateTime(options = {}) {
+  const { refreshViews = false } = options;
   currentClockDate = new Date();
+  secondsSinceClockSync = 0;
   renderCurrentDateTime(currentClockDate);
+  if (refreshViews) {
+    refreshCurrentDateDependentViews();
+  }
 }
 
 function tickCurrentDateTime() {
   if (!currentClockDate) {
-    syncCurrentDateTime();
+    syncCurrentDateTime({ refreshViews: true });
     return;
   }
 
   currentClockDate = new Date(currentClockDate.getTime() + 1000);
+  secondsSinceClockSync += 1;
 
-  if (currentClockDate.getSeconds() === 0) {
-    syncCurrentDateTime();
-    renderCalendar();
-    if (!selectedDateKey) {
-      selectedDateKey = getTodayKey();
-      renderSelectedEntries();
-      renderTextExport();
-    }
+  if (secondsSinceClockSync >= 5) {
+    syncCurrentDateTime({ refreshViews: true });
     return;
   }
 
