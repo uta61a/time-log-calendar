@@ -209,13 +209,18 @@ h1 {
   display: grid;
 }
 
+.past-input-panel {
+  background: rgba(255, 251, 245, 0.76);
+}
+
 .input-label {
   display: inline-block;
   margin-bottom: 10px;
   font-weight: 700;
 }
 
-.activity-input {
+.activity-input,
+.memo-input {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -252,7 +257,8 @@ h1 {
   border-color: var(--accent);
 }
 
-.activity-input:focus {
+.activity-input:focus,
+.memo-input:focus {
   outline: 3px solid rgba(224, 122, 95, 0.2);
   border-color: var(--accent);
 }
@@ -415,6 +421,35 @@ h1 {
   gap: 16px;
 }
 
+.memo-panel {
+  display: grid;
+}
+
+.memo-input {
+  min-height: auto;
+  line-height: 1.4;
+}
+
+.memo-card {
+  position: relative;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background: #fff8f2;
+  border: 1px solid rgba(224, 122, 95, 0.22);
+}
+
+.memo-card-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--accent-deep);
+}
+
+.memo-empty {
+  background: #fff8f2;
+}
+
 .language-switch {
   display: flex;
   gap: 12px;
@@ -430,6 +465,19 @@ h1 {
 .export-panel {
   display: grid;
   gap: 16px;
+}
+
+.export-mode-switch {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-mode-button.is-active {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  color: #fff;
+  border-color: transparent;
 }
 
 .export-output {
@@ -644,8 +692,11 @@ h1 {
     width: calc(100% - 24px);
     justify-content: center;
     bottom: 12px;
-    gap: 6px;
-    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tab-button {
+    padding: 10px 12px;
   }
 
   .clock-main {

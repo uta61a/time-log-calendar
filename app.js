@@ -1,15 +1,19 @@
 const STORAGE_KEY = "time-log-calendar-entries";
 const LANGUAGE_STORAGE_KEY = "time-log-calendar-language";
+const MEMO_STORAGE_KEY = "time-log-calendar-memos";
 
 const currentHourMinuteEl = document.getElementById("currentHourMinute");
 const currentSecondsEl = document.getElementById("currentSeconds");
 const currentMetaEl = document.getElementById("currentMeta");
 const activityInputEl = document.getElementById("activityInput");
+const currentActivityInputEl = document.getElementById("currentActivityInput");
 const saveButtonEl = document.getElementById("saveButton");
-const useCurrentTimeButtonEl = document.getElementById("useCurrentTimeButton");
+const currentSaveButtonEl = document.getElementById("currentSaveButton");
 const recordHeadingEl = document.getElementById("recordHeading");
+const pastRecordHeadingEl = document.getElementById("pastRecordHeading");
 const dateTimeLabelEl = document.getElementById("dateTimeLabel");
 const activityLabelEl = document.getElementById("activityLabel");
+const currentActivityLabelEl = document.getElementById("currentActivityLabel");
 const calendarMonthLabelEl = document.getElementById("calendarMonthLabel");
 const calendarGridEl = document.getElementById("calendarGrid");
 const toggleCalendarButtonEl = document.getElementById("toggleCalendarButton");
@@ -23,6 +27,7 @@ const textNextMonthButtonEl = document.getElementById("textNextMonthButton");
 const selectedDateLabelEl = document.getElementById("selectedDateLabel");
 const selectedEntriesEl = document.getElementById("selectedEntries");
 const manualDateTimeInputEl = document.getElementById("manualDateTimeInput");
+const memoDateTimeInputEl = document.getElementById("memoDateTimeInput");
 const toastContainerEl = document.getElementById("toastContainer");
 const recordTabButtonEl = document.getElementById("recordTabButton");
 const reviewTabButtonEl = document.getElementById("reviewTabButton");
@@ -36,14 +41,20 @@ const settingsTabEl = document.getElementById("settingsTab");
 const textExportLabelEl = document.getElementById("textExportLabel");
 const textExportOutputEl = document.getElementById("textExportOutput");
 const copyTextButtonEl = document.getElementById("copyTextButton");
+const exportDayButtonEl = document.getElementById("exportDayButton");
+const exportAllButtonEl = document.getElementById("exportAllButton");
+const memoDateTimeLabelEl = document.getElementById("memoDateTimeLabel");
+const memoTextLabelEl = document.getElementById("memoTextLabel");
+const memoHeadingEl = document.getElementById("memoHeading");
+const memoInputEl = document.getElementById("memoInput");
+const saveMemoButtonEl = document.getElementById("saveMemoButton");
 const settingsHeadingEl = document.getElementById("settingsHeading");
 const languageLabelEl = document.getElementById("languageLabel");
 const languageJaButtonEl = document.getElementById("languageJaButton");
 const languageEnButtonEl = document.getElementById("languageEnButton");
-const tabPanelEl = document.querySelector(".tab-panel");
 
 let selectedDateKey = null;
-let activeTab = "record";
+let textExportMode = "all";
 let currentClockDate = null;
 let secondsSinceClockSync = 0;
 let isCalendarExpanded = false;
@@ -75,16 +86,17 @@ const TRANSLATIONS = {
     recordTab: "記録",
     reviewTab: "履歴",
     textTab: "テキスト化",
-    settingsTab: "設定",
     tabList: "記録タブ",
-    recordHeading: "かんたん記録",
+    recordHeading: "今の記録",
+    pastRecordHeading: "過去の記録",
     dateTimeLabel: "日時",
-    useCurrentTime: "現在の時刻を取得",
     activityLabel: "今していること",
+    pastActivityLabel: "過去していたこと",
     save: "記録する",
     openCalendar: "カレンダーを開く",
     collapseCalendar: "折りたたむ",
     deleteEntry: "記録を削除",
+    deleteConfirm: "本当に削除しますか？",
     copy: "コピーする",
     settingsHeading: "設定",
     settingsButton: "設定",
@@ -95,17 +107,29 @@ const TRANSLATIONS = {
     noCopyText: "コピーできる記録がありません。",
     copiedText: "テキストをクリップボードにコピーしました。",
     copyFailed: "コピーに失敗しました。手動でコピーしてください。",
+    memoHeading: "メモ",
+    memoDateTimeLabel: "日付",
+    memoTextLabel: "メモしたいこと",
+    saveMemo: "メモを保存",
+    memoSaved: "メモを保存しました。",
+    memoEmpty: "この日のメモはまだありません。",
+    memoFutureError: "未来の日付にはメモを保存できません。",
+    memoPrompt: "メモを入力してください。",
+    deleteMemo: "メモを削除",
     deleteSuccess: "記録を削除しました。",
     savePrompt: "記録内容を入力してください。",
     datePrompt: "日時を入力してください。",
     monthRangeError: "記録できるのは2026年8月から現在の月までです。",
     invalidDateError: "その月には存在しない日付です。",
     futureError: "未来の予定は記録できません。過去または現在の時刻を選んでください。",
-    useCurrentTimeSuccess: "この端末の現在時刻を入力しました。",
     saveSuccess: "{date} {time} の記録を保存しました。",
     reviewLabel: "{month}/{day}の記録",
     textExportLabel: "{month}/{day}をテキスト化",
+    textExportAllLabel: "全履歴をテキスト化",
     textExportEmpty: "テキスト化",
+    exportDay: "この日",
+    exportAll: "全履歴",
+    exportRangeLabel: "テキスト化範囲",
     currentDateTimeLabel: "この端末の現在日時",
     prevMonthAria: "前の月",
     nextMonthAria: "次の月",
@@ -120,16 +144,17 @@ const TRANSLATIONS = {
     recordTab: "Log",
     reviewTab: "History",
     textTab: "Export",
-    settingsTab: "Settings",
     tabList: "Navigation tabs",
-    recordHeading: "Quick Log",
+    recordHeading: "Current Log",
+    pastRecordHeading: "Past Log",
     dateTimeLabel: "Date and time",
-    useCurrentTime: "Use current time",
     activityLabel: "What are you doing?",
+    pastActivityLabel: "What were you doing?",
     save: "Save",
     openCalendar: "Open calendar",
     collapseCalendar: "Collapse",
     deleteEntry: "Delete entry",
+    deleteConfirm: "Are you sure you want to delete this entry?",
     copy: "Copy",
     settingsHeading: "Settings",
     settingsButton: "Settings",
@@ -140,17 +165,29 @@ const TRANSLATIONS = {
     noCopyText: "There is nothing to copy.",
     copiedText: "Copied to clipboard.",
     copyFailed: "Copy failed. Please copy it manually.",
+    memoHeading: "Memo",
+    memoDateTimeLabel: "Date",
+    memoTextLabel: "Memo",
+    saveMemo: "Save memo",
+    memoSaved: "Memo saved.",
+    memoEmpty: "There is no memo for this day yet.",
+    memoFutureError: "Memo cannot be saved for a future date.",
+    memoPrompt: "Please enter a memo.",
+    deleteMemo: "Delete memo",
     deleteSuccess: "Entry deleted.",
     savePrompt: "Please enter what you are doing.",
     datePrompt: "Please enter a date and time.",
     monthRangeError: "You can log only from August 2026 through the current month.",
     invalidDateError: "That date does not exist in this month.",
     futureError: "Future plans cannot be logged. Choose a past or current time.",
-    useCurrentTimeSuccess: "Inserted this device's current time.",
     saveSuccess: "Saved entry for {date} {time}.",
     reviewLabel: "{month}/{day} log",
     textExportLabel: "Export {month}/{day}",
+    textExportAllLabel: "Export all history",
     textExportEmpty: "Export",
+    exportDay: "This day",
+    exportAll: "All history",
+    exportRangeLabel: "Export range",
     currentDateTimeLabel: "Current date and time on this device",
     prevMonthAria: "Previous month",
     nextMonthAria: "Next month",
@@ -209,6 +246,51 @@ function saveEntries(entries) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
 }
 
+function normalizeMemoEntry(dateKey, memo, index = 0) {
+  if (typeof memo === "string") {
+    return {
+      id: `legacy-${dateKey}-${index}`,
+      text: memo,
+      createdAt: `${dateKey}T00:00:00.000Z`,
+    };
+  }
+
+  return {
+    id: memo.id || `legacy-${dateKey}-${index}`,
+    text: String(memo.text || ""),
+    createdAt: memo.createdAt || `${dateKey}T00:00:00.000Z`,
+  };
+}
+
+function normalizeMemos(rawMemos) {
+  return Object.entries(rawMemos || {}).reduce((normalized, [dateKey, value]) => {
+    const memoEntries = Array.isArray(value)
+      ? value.map((memo, index) => normalizeMemoEntry(dateKey, memo, index))
+      : [normalizeMemoEntry(dateKey, value)];
+    const validMemoEntries = memoEntries.filter((memo) => memo.text.trim());
+
+    if (validMemoEntries.length) {
+      normalized[dateKey] = validMemoEntries;
+    }
+
+    return normalized;
+  }, {});
+}
+
+function loadMemos() {
+  try {
+    const raw = localStorage.getItem(MEMO_STORAGE_KEY);
+    return raw ? normalizeMemos(JSON.parse(raw)) : {};
+  } catch (error) {
+    console.error("Failed to read memo storage", error);
+    return {};
+  }
+}
+
+function saveMemos(memos) {
+  localStorage.setItem(MEMO_STORAGE_KEY, JSON.stringify(memos));
+}
+
 function pad(value) {
   return String(value).padStart(2, "0");
 }
@@ -261,8 +343,32 @@ function parseDateTimeInput(value) {
   return { year, month, day, hour, minute };
 }
 
+function parseDateInput(value) {
+  if (!value) {
+    return null;
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+
+  if ([year, month, day].some(Number.isNaN)) {
+    return null;
+  }
+
+  return { year, month, day };
+}
+
 function partsToDate(parts) {
   return new Date(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, 0);
+}
+
+function dateToParts(date) {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    hour: date.getHours(),
+    minute: date.getMinutes(),
+  };
 }
 
 function getCurrentLocalInputValue() {
@@ -273,6 +379,11 @@ function getCurrentLocalInputValue() {
   const hour = pad(now.getHours());
   const minute = pad(now.getMinutes());
   return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+function getCurrentLocalDateInputValue() {
+  const now = new Date();
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 function formatSlashDate(year, month, day) {
@@ -287,6 +398,11 @@ function formatReviewLabel(dateKey) {
 function formatTextExportLabel(dateKey) {
   const [, month, day] = dateKey.split("-");
   return t("textExportLabel", { month, day });
+}
+
+function formatExportDateHeader(dateKey) {
+  const [, month, day] = dateKey.split("-");
+  return `${Number(month)}/${Number(day)}`;
 }
 
 function getCurrentAvailableMonth() {
@@ -304,6 +420,43 @@ function getTodayKey() {
     baseDate.getMonth() + 1,
     baseDate.getDate(),
   );
+}
+
+function isFutureDateKey(dateKey) {
+  return dateKey > getTodayKey();
+}
+
+function validateMemoDateParts(activeParts) {
+  if (!activeParts) {
+    showToast(t("datePrompt"), "error");
+    memoDateTimeInputEl.focus();
+    return false;
+  }
+
+  const current = getCurrentAvailableMonth();
+  if (
+    compareYearMonth(activeParts.year, activeParts.month, RELEASE_YEAR, RELEASE_MONTH) < 0 ||
+    compareYearMonth(activeParts.year, activeParts.month, current.year, current.month) > 0
+  ) {
+    showToast(t("monthRangeError"), "error");
+    memoDateTimeInputEl.focus();
+    return false;
+  }
+
+  if (activeParts.day > getDaysInMonth(activeParts.year, activeParts.month)) {
+    showToast(t("invalidDateError"), "error");
+    memoDateTimeInputEl.focus();
+    return false;
+  }
+
+  const dateKey = formatDateKeyFromParts(activeParts.year, activeParts.month, activeParts.day);
+  if (isFutureDateKey(dateKey)) {
+    showToast(t("memoFutureError"), "error");
+    memoDateTimeInputEl.focus();
+    return false;
+  }
+
+  return true;
 }
 
 function getAvailableMonths() {
@@ -384,16 +537,27 @@ function renderStaticText() {
   document.title = t("documentTitle");
   currentHourMinuteEl.parentElement.parentElement.setAttribute("aria-label", t("currentDateTimeLabel"));
   recordHeadingEl.textContent = t("recordHeading");
+  pastRecordHeadingEl.textContent = t("pastRecordHeading");
   dateTimeLabelEl.textContent = t("dateTimeLabel");
-  useCurrentTimeButtonEl.textContent = t("useCurrentTime");
-  activityLabelEl.textContent = t("activityLabel");
+  activityLabelEl.textContent = t("pastActivityLabel");
+  currentActivityLabelEl.textContent = t("activityLabel");
   saveButtonEl.textContent = t("save");
+  currentSaveButtonEl.textContent = t("save");
   recordTabButtonEl.textContent = t("recordTab");
   reviewTabButtonEl.textContent = t("reviewTab");
   textTabButtonEl.textContent = t("textTab");
   settingsHeadingEl.textContent = t("settingsHeading");
   languageLabelEl.textContent = t("languageLabel");
   copyTextButtonEl.textContent = t("copy");
+  exportDayButtonEl.textContent = t("exportDay");
+  exportAllButtonEl.textContent = t("exportAll");
+  exportDayButtonEl.classList.toggle("is-active", textExportMode === "day");
+  exportAllButtonEl.classList.toggle("is-active", textExportMode === "all");
+  exportDayButtonEl.parentElement.setAttribute("aria-label", t("exportRangeLabel"));
+  memoHeadingEl.textContent = t("memoHeading");
+  memoDateTimeLabelEl.textContent = t("memoDateTimeLabel");
+  memoTextLabelEl.textContent = t("memoTextLabel");
+  saveMemoButtonEl.textContent = t("saveMemo");
   settingsIconButtonEl.setAttribute("aria-label", t("settingsButton"));
   prevMonthButtonEl.setAttribute("aria-label", t("prevMonthAria"));
   nextMonthButtonEl.setAttribute("aria-label", t("nextMonthAria"));
@@ -435,6 +599,25 @@ function deleteEntry(entryId) {
   showToastWithKey(`delete:${entryId}`, t("deleteSuccess"), "success");
 }
 
+function deleteMemo(memoId) {
+  const memos = loadMemos();
+
+  Object.keys(memos).forEach((dateKey) => {
+    memos[dateKey] = memos[dateKey].filter((memo) => memo.id !== memoId);
+    if (!memos[dateKey].length) {
+      delete memos[dateKey];
+    }
+  });
+
+  saveMemos(memos);
+  renderSelectedEntries();
+  renderTextExport();
+  if (selectedDateKey) {
+    renderMemo();
+  }
+  showToastWithKey(`memo-delete:${memoId}`, t("deleteSuccess"), "success");
+}
+
 function renderCurrentDateTime(date) {
   const clock = formatClockParts(date);
   currentHourMinuteEl.textContent = clock.hourMinute;
@@ -453,11 +636,13 @@ function refreshCurrentDateDependentViews() {
 
 function syncCurrentDateTime(options = {}) {
   const { refreshViews = false } = options;
+  const previousTodayKey = currentClockDate ? getTodayKey() : "";
   currentClockDate = new Date();
   secondsSinceClockSync = 0;
   renderCurrentDateTime(currentClockDate);
-  if (refreshViews) {
+  if (refreshViews || previousTodayKey !== getTodayKey()) {
     refreshCurrentDateDependentViews();
+    renderMemo();
   }
 }
 
@@ -471,7 +656,7 @@ function tickCurrentDateTime() {
   secondsSinceClockSync += 1;
 
   if (secondsSinceClockSync >= 5) {
-    syncCurrentDateTime({ refreshViews: true });
+    syncCurrentDateTime();
     return;
   }
 
@@ -562,6 +747,7 @@ function renderCalendarCells(container, cells) {
       setVisibleMonthFromDateKey(cell.dateKey);
       renderCalendar();
       renderSelectedEntries();
+      renderMemo();
       renderTextExport();
     });
 
@@ -624,6 +810,19 @@ function renderCalendar() {
 }
 
 function renderSelectedEntries() {
+  const memoEntries = selectedDateKey ? (loadMemos()[selectedDateKey] || []) : [];
+  const memoHtml = memoEntries.length
+    ? memoEntries
+      .map((memo) => `
+        <article class="memo-card">
+          <button class="entry-delete" type="button" data-memo-id="${memo.id}" aria-label="${t("deleteMemo")}">×</button>
+          <span class="memo-card-label">${t("memoHeading")}</span>
+          <p class="entry-text">${escapeHtml(memo.text)}</p>
+        </article>
+      `)
+      .join("")
+    : `<p class="empty-state memo-empty">${t("memoEmpty")}</p>`;
+
   if (!selectedDateKey) {
     selectedDateLabelEl.textContent = formatReviewLabel(getTodayKey());
     selectedEntriesEl.innerHTML = `<p class="empty-state">${t("noDisplayEntries")}</p>`;
@@ -637,7 +836,7 @@ function renderSelectedEntries() {
   selectedDateLabelEl.textContent = formatReviewLabel(selectedDateKey);
 
   if (!entries.length) {
-    selectedEntriesEl.innerHTML = `<p class="empty-state">${t("noDayEntries")}</p>`;
+    selectedEntriesEl.innerHTML = `<p class="empty-state">${t("noDayEntries")}</p>${memoHtml}`;
     return;
   }
 
@@ -649,13 +848,30 @@ function renderSelectedEntries() {
         <p class="entry-text">${escapeHtml(entry.text)}</p>
       </article>
     `)
-    .join("");
+    .join("") + memoHtml;
 
   selectedEntriesEl.querySelectorAll(".entry-delete").forEach((button) => {
     button.addEventListener("click", () => {
-      deleteEntry(button.dataset.entryId);
+      if (window.confirm(t("deleteConfirm"))) {
+        if (button.dataset.entryId) {
+          deleteEntry(button.dataset.entryId);
+          return;
+        }
+
+        deleteMemo(button.dataset.memoId);
+      }
     });
   });
+}
+
+function renderMemo() {
+  const activeParts = parseDateInput(memoDateTimeInputEl.value);
+  const dateKey = activeParts
+    ? formatDateKeyFromParts(activeParts.year, activeParts.month, activeParts.day)
+    : getTodayKey();
+  const isFuture = isFutureDateKey(dateKey);
+  memoInputEl.disabled = isFuture;
+  saveMemoButtonEl.disabled = isFuture;
 }
 
 function getSelectedDateEntries() {
@@ -668,7 +884,55 @@ function getSelectedDateEntries() {
     .sort((a, b) => a.isoDateTime.localeCompare(b.isoDateTime));
 }
 
+function getSelectedMemoMap() {
+  if (!selectedDateKey) {
+    return {};
+  }
+
+  const memo = loadMemos()[selectedDateKey];
+  return memo ? { [selectedDateKey]: memo } : {};
+}
+
+function formatEntriesAsText(entries, memos = {}) {
+  const grouped = entries.reduce((map, entry) => {
+    if (!map.has(entry.dateKey)) {
+      map.set(entry.dateKey, []);
+    }
+    map.get(entry.dateKey).push(entry);
+    return map;
+  }, new Map());
+
+  Object.keys(memos).forEach((dateKey) => {
+    if (memos[dateKey]?.length && !grouped.has(dateKey)) {
+      grouped.set(dateKey, []);
+    }
+  });
+
+  return Array.from(grouped.entries())
+    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+    .map(([dateKey, dayEntries]) => {
+      const lines = dayEntries
+        .sort((a, b) => a.isoDateTime.localeCompare(b.isoDateTime))
+        .map((entry) => `${entry.time} ${entry.text}`);
+      const memoLines = (memos[dateKey] || [])
+        .map((memo) => memo.text.trim())
+        .filter(Boolean);
+      return [formatExportDateHeader(dateKey), ...lines, ...memoLines].join("\n");
+    })
+    .join("\n\n");
+}
+
 function renderTextExport() {
+  exportDayButtonEl.classList.toggle("is-active", textExportMode === "day");
+  exportAllButtonEl.classList.toggle("is-active", textExportMode === "all");
+
+  if (textExportMode === "all") {
+    const entries = loadEntries();
+    textExportLabelEl.textContent = t("textExportAllLabel");
+    textExportOutputEl.value = formatEntriesAsText(entries, loadMemos());
+    return;
+  }
+
   if (!selectedDateKey) {
     textExportLabelEl.textContent = t("textExportEmpty");
     textExportOutputEl.value = "";
@@ -677,7 +941,7 @@ function renderTextExport() {
 
   const entries = getSelectedDateEntries();
   textExportLabelEl.textContent = formatTextExportLabel(selectedDateKey);
-  textExportOutputEl.value = entries.map((entry) => `${entry.time} ${entry.text}`).join("\n");
+  textExportOutputEl.value = formatEntriesAsText(entries, getSelectedMemoMap());
 }
 
 function escapeHtml(text) {
@@ -689,20 +953,11 @@ function escapeHtml(text) {
     .replaceAll("'", "&#39;");
 }
 
-function saveEntry() {
-  const text = activityInputEl.value.trim();
-  const activeParts = parseDateTimeInput(manualDateTimeInputEl.value);
-
-  if (!text) {
-    showToast(t("savePrompt"), "error");
-    activityInputEl.focus();
-    return;
-  }
-
+function validateEntryDateParts(activeParts) {
   if (!activeParts) {
     showToast(t("datePrompt"), "error");
     manualDateTimeInputEl.focus();
-    return;
+    return false;
   }
 
   const current = getCurrentAvailableMonth();
@@ -712,13 +967,13 @@ function saveEntry() {
   ) {
     showToast(t("monthRangeError"), "error");
     manualDateTimeInputEl.focus();
-    return;
+    return false;
   }
 
   if (activeParts.day > getDaysInMonth(activeParts.year, activeParts.month)) {
     showToast(t("invalidDateError"), "error");
     manualDateTimeInputEl.focus();
-    return;
+    return false;
   }
 
   const activeDate = partsToDate(activeParts);
@@ -727,12 +982,17 @@ function saveEntry() {
   if (activeDate.getTime() > now.getTime()) {
     showToast(t("futureError"), "error");
     manualDateTimeInputEl.focus();
-    return;
+    return false;
   }
 
+  return true;
+}
+
+function addEntry(text, activeParts) {
   const entries = loadEntries();
   const dateKey = formatDateKeyFromParts(activeParts.year, activeParts.month, activeParts.day);
   const time = `${pad(activeParts.hour)}:${pad(activeParts.minute)}`;
+  const activeDate = partsToDate(activeParts);
 
   entries.push({
     id: crypto.randomUUID(),
@@ -748,7 +1008,6 @@ function saveEntry() {
 
   selectedDateKey = dateKey;
   setVisibleMonthFromDateKey(dateKey);
-  activityInputEl.value = "";
   showToastWithKey(
     `save:${savedEntry.id}`,
     t("saveSuccess", {
@@ -759,17 +1018,79 @@ function saveEntry() {
   );
   renderCalendar();
   renderSelectedEntries();
+  renderMemo();
   renderTextExport();
 }
 
-function useCurrentLocalTime() {
-  manualDateTimeInputEl.value = getCurrentLocalInputValue();
-  manualDateTimeInputEl.dispatchEvent(new Event("input"));
-  showToast(t("useCurrentTimeSuccess"), "success");
+function saveCurrentEntry() {
+  const text = currentActivityInputEl.value.trim();
+
+  if (!text) {
+    showToast(t("savePrompt"), "error");
+    currentActivityInputEl.focus();
+    return;
+  }
+
+  addEntry(text, dateToParts(currentClockDate || new Date()));
+  currentActivityInputEl.value = "";
+}
+
+function saveEntry() {
+  const text = activityInputEl.value.trim();
+  const activeParts = parseDateTimeInput(manualDateTimeInputEl.value);
+
+  if (!text) {
+    showToast(t("savePrompt"), "error");
+    activityInputEl.focus();
+    return;
+  }
+
+  if (!validateEntryDateParts(activeParts)) {
+    return;
+  }
+
+  addEntry(text, activeParts);
+  activityInputEl.value = "";
+}
+
+function saveMemo() {
+  const activeParts = parseDateInput(memoDateTimeInputEl.value);
+
+  if (!validateMemoDateParts(activeParts)) {
+    return;
+  }
+
+  const value = memoInputEl.value.trim();
+  if (!value) {
+    showToast(t("memoPrompt"), "error");
+    memoInputEl.focus();
+    return;
+  }
+
+  const memos = loadMemos();
+  const dateKey = formatDateKeyFromParts(activeParts.year, activeParts.month, activeParts.day);
+
+  if (!memos[dateKey]) {
+    memos[dateKey] = [];
+  }
+
+  memos[dateKey].push({
+    id: crypto.randomUUID(),
+    text: value,
+    createdAt: new Date().toISOString(),
+  });
+
+  saveMemos(memos);
+  selectedDateKey = dateKey;
+  setVisibleMonthFromDateKey(dateKey);
+  memoInputEl.value = "";
+  renderCalendar();
+  renderSelectedEntries();
+  renderTextExport();
+  showToast(t("memoSaved"), "success");
 }
 
 function setActiveTab(tabName) {
-  activeTab = tabName;
   const showRecord = tabName === "record";
   const showReview = tabName === "review";
   const showText = tabName === "text";
@@ -892,6 +1213,7 @@ function moveVisibleWeek(direction) {
   selectedDateKey = targetDayCell.dateKey;
   renderCalendar();
   renderSelectedEntries();
+  renderMemo();
   renderTextExport();
 }
 
@@ -904,57 +1226,22 @@ function moveVisiblePeriod(direction) {
   moveVisibleWeek(direction);
 }
 
-function setupSwipeTabs() {
-  const tabs = ["record", "review", "text", "settings"];
-  let startX = 0;
-  let startY = 0;
-  let tracking = false;
-
-  tabPanelEl.addEventListener("touchstart", (event) => {
-    if (event.touches.length !== 1) {
-      return;
-    }
-
-    const touch = event.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-    tracking = true;
-  }, { passive: true });
-
-  tabPanelEl.addEventListener("touchend", (event) => {
-    if (!tracking || event.changedTouches.length !== 1) {
-      tracking = false;
-      return;
-    }
-
-    const touch = event.changedTouches[0];
-    const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
-    tracking = false;
-
-    if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) {
-      return;
-    }
-
-    const currentIndex = tabs.indexOf(activeTab);
-    if (currentIndex < 0) {
-      return;
-    }
-
-    if (deltaX < 0 && currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1]);
-    } else if (deltaX > 0 && currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1]);
-    }
-  }, { passive: true });
-}
-
 function handleActivityKeydown(event) {
   if (event.key !== "Enter" || event.isComposing) {
     return;
   }
 
   event.preventDefault();
+  if (event.currentTarget === currentActivityInputEl) {
+    saveCurrentEntry();
+    return;
+  }
+
+  if (event.currentTarget === memoInputEl) {
+    saveMemo();
+    return;
+  }
+
   saveEntry();
 }
 
@@ -987,12 +1274,19 @@ function setLanguage(language) {
   renderStaticText();
   renderCalendar();
   renderSelectedEntries();
+  renderMemo();
   renderTextExport();
   showToast(t("languageChanged"), "success");
 }
 
+function setTextExportMode(mode) {
+  textExportMode = mode;
+  renderStaticText();
+  renderTextExport();
+}
+
+currentSaveButtonEl.addEventListener("click", saveCurrentEntry);
 saveButtonEl.addEventListener("click", saveEntry);
-useCurrentTimeButtonEl.addEventListener("click", useCurrentLocalTime);
 recordTabButtonEl.addEventListener("click", () => setActiveTab("record"));
 reviewTabButtonEl.addEventListener("click", () => setActiveTab("review"));
 textTabButtonEl.addEventListener("click", () => setActiveTab("text"));
@@ -1004,18 +1298,25 @@ nextMonthButtonEl.addEventListener("click", () => moveVisiblePeriod(1));
 textPrevMonthButtonEl.addEventListener("click", () => moveVisiblePeriod(-1));
 textNextMonthButtonEl.addEventListener("click", () => moveVisiblePeriod(1));
 activityInputEl.addEventListener("keydown", handleActivityKeydown);
+currentActivityInputEl.addEventListener("keydown", handleActivityKeydown);
+memoInputEl.addEventListener("keydown", handleActivityKeydown);
+memoDateTimeInputEl.addEventListener("input", renderMemo);
 copyTextButtonEl.addEventListener("click", copyTextExport);
+exportDayButtonEl.addEventListener("click", () => setTextExportMode("day"));
+exportAllButtonEl.addEventListener("click", () => setTextExportMode("all"));
+saveMemoButtonEl.addEventListener("click", saveMemo);
 languageJaButtonEl.addEventListener("click", () => setLanguage("ja"));
 languageEnButtonEl.addEventListener("click", () => setLanguage("en"));
 
 syncCurrentDateTime();
 renderStaticText();
 manualDateTimeInputEl.value = getCurrentLocalInputValue();
+memoDateTimeInputEl.value = getCurrentLocalDateInputValue();
 selectedDateKey = getTodayKey();
 setVisibleMonthFromDateKey(selectedDateKey);
 window.setInterval(tickCurrentDateTime, 1000);
 renderCalendar();
 renderSelectedEntries();
+renderMemo();
 renderTextExport();
 setActiveTab("record");
-setupSwipeTabs();

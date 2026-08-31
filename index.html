@@ -37,14 +37,27 @@
           <div class="panel-heading">
             <h2 id="recordHeading">かんたん記録</h2>
           </div>
+          <label id="currentActivityLabel" class="input-label" for="currentActivityInput">今していること</label>
+          <input
+            id="currentActivityInput"
+            class="activity-input"
+            maxlength="280"
+            type="text"
+          >
+          <button id="currentSaveButton" class="primary-button centered-action" type="button">記録する</button>
+        </section>
+
+        <section class="panel input-panel past-input-panel">
+          <div class="panel-heading">
+            <h2 id="pastRecordHeading">過去の記録</h2>
+          </div>
           <div class="manual-time-panel">
             <label id="dateTimeLabel" class="input-label" for="manualDateTimeInput">日時</label>
             <div class="datetime-row">
               <input id="manualDateTimeInput" class="datetime-input" type="datetime-local">
-              <button id="useCurrentTimeButton" class="ghost-button" type="button">現在の時刻を取得</button>
             </div>
           </div>
-          <label id="activityLabel" class="input-label" for="activityInput">今していること</label>
+          <label id="activityLabel" class="input-label" for="activityInput">過去していたこと</label>
           <input
             id="activityInput"
             class="activity-input"
@@ -52,6 +65,21 @@
             type="text"
           >
           <button id="saveButton" class="primary-button centered-action" type="button">記録する</button>
+        </section>
+
+        <section class="panel memo-panel">
+          <div class="panel-heading">
+            <h2 id="memoHeading">メモ</h2>
+          </div>
+          <div class="manual-time-panel">
+            <label id="memoDateTimeLabel" class="input-label" for="memoDateTimeInput">日付</label>
+            <div class="datetime-row">
+              <input id="memoDateTimeInput" class="datetime-input" type="date">
+            </div>
+          </div>
+          <label id="memoTextLabel" class="input-label" for="memoInput">メモしたいこと</label>
+          <input id="memoInput" class="memo-input" maxlength="280" type="text">
+          <button id="saveMemoButton" class="primary-button centered-action" type="button">メモを保存</button>
         </section>
       </section>
 
@@ -94,6 +122,10 @@
         <section class="panel export-panel">
           <div class="panel-heading">
             <h2 id="textExportLabel">08/24をテキスト化</h2>
+          </div>
+          <div class="export-mode-switch" role="group" aria-label="テキスト化範囲">
+            <button id="exportDayButton" class="ghost-button export-mode-button" type="button">この日</button>
+            <button id="exportAllButton" class="ghost-button export-mode-button is-active" type="button">全履歴</button>
           </div>
           <textarea
             id="textExportOutput"
